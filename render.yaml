@@ -1,0 +1,20 @@
+services:
+  - type: static
+    name: yashveer-portfolio
+    env: node
+    # Build and publish settings for Vite
+    buildCommand: npm ci && npm run build
+    publishPath: dist
+    # Force single page app rewrites (all 404s -> /index.html)
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: public, max-age=0, must-revalidate
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    # Use a stable Node version for builds
+    envVars:
+      - key: NODE_VERSION
+        value: 18
