@@ -351,6 +351,16 @@ export default function App() {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [showEmailPopup, setShowEmailPopup] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [mousePos, setMousePos] = useState({ x: -100, y: -100 });
+  const [accent, setAccent] = useState(() => {
+    if (typeof window === 'undefined') return 'blue';
+    const saved = localStorage.getItem('accent');
+    return saved && ['blue','purple','teal','pink'].includes(saved) ? saved : 'blue';
+  }); // 'blue' | 'purple' | 'teal' | 'pink'
+
+  useEffect(() => {
+    try { localStorage.setItem('accent', accent); } catch {}
+  }, [accent]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -392,6 +402,13 @@ export default function App() {
   };
 
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  // Spotlight mouse tracking
+  const handleMouseMove = (e) => {
+    const x = e.clientX;
+    const y = e.clientY;
+    setMousePos({ x, y });
+  };
 
   const handleFormChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
   const handleFormSubmit = async (e) => {
@@ -527,7 +544,7 @@ export default function App() {
 
   return (
     <ThemeProvider>
-  {/* 3D background removed per request */}
+  {/* 3D background removed per request; add subtle parallax blobs */}
 
       {/* Navbar */}
       <nav className="fixed top-0 w-full z-50 bg-black/20 backdrop-blur-lg border-b border-white/10">
@@ -554,6 +571,12 @@ export default function App() {
             </div>
             <div className="flex items-center gap-2">
               <ThemeToggle />
+              {/* Accent color switcher */}
+              <div className="hidden sm:flex items-center gap-1 pl-2">
+                {[['blue','from-blue-500 to-purple-500'], ['purple','from-purple-500 to-pink-500'], ['teal','from-teal-500 to-emerald-500'], ['pink','from-pink-500 to-rose-500']].map(([key, grad]) => (
+                  <button key={key} onClick={() => setAccent(key)} aria-label={`Set ${key} accent`} className={`h-5 w-5 rounded-full bg-gradient-to-r ${grad} border border-white/20 ${accent===key? 'ring-2 ring-white/60':'opacity-80 hover:opacity-100'}`}></button>
+                ))}
+              </div>
               <button
                 className="md:hidden p-2 hover:bg-white/10 rounded-lg transition-colors"
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -587,13 +610,14 @@ export default function App() {
         />
       </div>
 
-      <div className="pt-20">
+  <div className="pt-20" onMouseMove={handleMouseMove}>
         {/* Hero */}
-        <section id="home" className="min-h-screen flex items-center justify-center relative overflow-hidden">
+        <section id="home" className="min-h-screen flex items-center justify-center relative overflow-hidden" onMouseMove={handleMouseMove}>
           <div className="absolute inset-0">
             <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20 animate-pulse"></div>
-            <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-blue-500/20 rounded-full blur-3xl opacity-70"></div>
-            <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl opacity-70"></div>
+            {/* Parallax blobs */}
+            <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-blue-500/20 rounded-full blur-3xl opacity-70" style={{ transform: `translate3d(${mousePos.x * 0.02}px, ${mousePos.y * 0.01}px, 0)` }}></div>
+            <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl opacity-70" style={{ transform: `translate3d(${-mousePos.x * 0.015}px, ${-mousePos.y * 0.008}px, 0)` }}></div>
           </div>
           <div className="container mx-auto px-6 text-center z-10">
             <div className={`transition-all duration-1000 ${isVisible.home ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
@@ -635,13 +659,13 @@ export default function App() {
                 </a>
               </div>
               <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-                <button onClick={() => scrollToSection('projects')} className="px-8 py-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full font-semibold hover:from-blue-600 hover:to-purple-600 transition-all hover:scale-105 shadow-lg hover:shadow-blue-500/25 btn-shine">
+                <button onClick={() => scrollToSection('projects')} className={`px-8 py-3 bg-gradient-to-r rounded-full font-semibold transition-all hover:scale-105 shadow-lg btn-shine ${accent==='blue'?'from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600':accent==='purple'?'from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600':accent==='teal'?'from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600':'from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600'}`}>
                   View My Work
                 </button>
-                <button onClick={() => scrollToSection('contact')} className="px-8 py-3 border-2 border-blue-400 rounded-full font-semibold hover:bg-blue-400 hover:text-black transition-all hover:scale-105 btn-shine">
+                <button onClick={() => scrollToSection('contact')} className={`px-8 py-3 border-2 rounded-full font-semibold transition-all hover:scale-105 btn-shine ${accent==='blue'?'border-blue-400 hover:bg-blue-400':'border-purple-400 hover:bg-purple-400'} hover:text-black`}>
                   Get In Touch
                 </button>
-                <button onClick={downloadCV} className="px-8 py-3 bg-gradient-to-r from-green-500 to-teal-500 rounded-full font-semibold hover:from-green-600 hover:to-teal-600 transition-all hover:scale-105 shadow-lg hover:shadow-green-500/25 flex items-center space-x-2 btn-shine">
+                <button onClick={downloadCV} className={`px-8 py-3 bg-gradient-to-r rounded-full font-semibold transition-all hover:scale-105 shadow-lg flex items-center space-x-2 btn-shine ${accent==='teal'?'from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600':'from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600'}`}>
                   <Download size={20} />
                   <span>Download CV</span>
                 </button>
@@ -711,13 +735,17 @@ export default function App() {
             <div className={`transition-all duration-1000 ${isVisible.skills ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
               <h2 className="text-4xl md:text-5xl font-bold text-center mb-16 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent animate-grad">Skills & Technologies</h2>
               <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
-                {Object.entries(skills).map(([category, list]) => (
-                  <div key={category} className="bg-white/5 p-6 rounded-xl backdrop-blur-sm border border-white/10 hover:border-blue-400/50 transition-all group tilt glow-border">
+                {Object.entries(skills).map(([category, list], idx) => (
+                  <div key={category} className="bg-white/5 p-6 rounded-xl backdrop-blur-sm border border-white/10 hover:border-blue-400/50 transition-all group tilt glow-border spotlight" style={{ transitionDelay: `${idx * 80}ms`, '--mx': `${mousePos.x}px`, '--my': `${mousePos.y}px` }}>
                     <Code className="text-blue-400 mb-4 group-hover:scale-110 transition-transform" size={40} />
                     <h3 className="text-xl font-semibold mb-6 text-white capitalize">{category}</h3>
                     <div className="space-y-4">
                       {list.map((skill, i) => (
-                        <div key={i} className="space-y-2">
+                        <div
+                          key={i}
+                          className={`space-y-2 transition-all duration-700 ${isVisible.skills ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'}`}
+                          style={{ transitionDelay: `${i * 60}ms` }}
+                        >
                           <div className="flex justify-between">
                             <span className="text-gray-300">{skill.name}</span>
                             <span className="text-blue-400">{skill.level}%</span>
@@ -742,7 +770,7 @@ export default function App() {
               <h2 className="text-4xl md:text-5xl font-bold text-center mb-16 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent animate-grad">Featured Projects</h2>
               <div className="space-y-8">
                 {mainProjects.map((project, index) => (
-                  <div key={index} className="bg-white/5 p-8 rounded-xl backdrop-blur-sm border border-white/10 hover:border-blue-400/50 transition-all group tilt glow-border">
+                  <div key={index} className="bg-white/5 p-8 rounded-xl backdrop-blur-sm border border-white/10 hover:border-blue-400/50 transition-all group tilt glow-border spotlight" style={{ transitionDelay: `${index * 90}ms`, '--mx': `${mousePos.x}px`, '--my': `${mousePos.y}px` }}>
                     <div className="flex flex-col lg:flex-row justify-between items-start mb-6">
                       <div className="flex-1">
                         <h3 className="text-2xl font-bold text-white mb-2">{project.title}</h3>
@@ -765,13 +793,29 @@ export default function App() {
                       <div>
                         <h4 className="text-white font-semibold mb-3 flex items-center"><Star className="mr-2" size={16} /> Key Features</h4>
                         <div className="flex flex-wrap gap-2">
-                          {project.features.map((f, i) => (<span key={i} className="px-3 py-1 bg-white/10 text-gray-300 rounded-full text-sm">{f}</span>))}
+                          {project.features.map((f, i) => (
+                            <span
+                              key={i}
+                              className={`px-3 py-1 bg-white/10 text-gray-300 rounded-full text-sm transition-all duration-500 ${isVisible.projects ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}
+                              style={{ transitionDelay: `${i * 50}ms` }}
+                            >
+                              {f}
+                            </span>
+                          ))}
                         </div>
                       </div>
                       <div>
                         <h4 className="text-white font-semibold mb-3 flex items-center"><Target className="mr-2" size={16} /> Highlights</h4>
                         <ul className="space-y-1">
-                          {project.highlights.map((h, i) => (<li key={i} className="text-gray-300 text-sm flex items-start"><ChevronRight size={14} className="text-purple-400 mr-2 mt-0.5 flex-shrink-0" />{h}</li>))}
+                          {project.highlights.map((h, i) => (
+                            <li
+                              key={i}
+                              className={`text-gray-300 text-sm flex items-start transition-all duration-500 ${isVisible.projects ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}
+                              style={{ transitionDelay: `${i * 60}ms` }}
+                            >
+                              <ChevronRight size={14} className="text-purple-400 mr-2 mt-0.5 flex-shrink-0" />{h}
+                            </li>
+                          ))}
                         </ul>
                       </div>
                     </div>
@@ -788,7 +832,7 @@ export default function App() {
             <div className={`transition-all duration-1000 ${isVisible.experience ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
               <h2 className="text-4xl md:text-5xl font-bold text-center mb-16 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent animate-grad">Experience & Achievements</h2>
               <div className="grid lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
-                <div className="bg-white/5 p-8 rounded-xl backdrop-blur-sm border border-white/10 hover:border-blue-400/50 transition-all tilt glow-border">
+                <div className="bg-white/5 p-8 rounded-xl backdrop-blur-sm border border-white/10 hover:border-blue-400/50 transition-all tilt glow-border spotlight" style={{ '--mx': `${mousePos.x}px`, '--my': `${mousePos.y}px` }}>
                   <h3 className="text-2xl font-bold text-blue-400 mb-6 flex items-center"><Briefcase className="mr-3" size={24} /> Work Experience</h3>
                   <div className="border-l-4 border-blue-400 pl-6">
                     <h4 className="text-xl font-semibold text-white">{experience.role}</h4>
@@ -796,15 +840,35 @@ export default function App() {
                     <div className="flex flex-wrap gap-4 text-gray-400 mb-4"><span>{experience.period}</span><span>•</span><span>{experience.location}</span></div>
                     <div className="mb-6">
                       <h5 className="text-white font-semibold mb-3">Key Responsibilities:</h5>
-                      <ul className="space-y-2">{experience.responsibilities.map((resp, i) => (<li key={i} className="text-gray-300 flex items-start text-sm"><ChevronRight size={16} className="text-blue-400 mr-2 mt-0.5 flex-shrink-0" />{resp}</li>))}</ul>
+                      <ul className="space-y-2">
+                        {experience.responsibilities.map((resp, i) => (
+                          <li
+                            key={i}
+                            className={`text-gray-300 flex items-start text-sm transition-all duration-500 ${isVisible.experience ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}
+                            style={{ transitionDelay: `${i * 60}ms` }}
+                          >
+                            <ChevronRight size={16} className="text-blue-400 mr-2 mt-0.5 flex-shrink-0" />{resp}
+                          </li>
+                        ))}
+                      </ul>
                     </div>
                     <div>
                       <h5 className="text-white font-semibold mb-3">Achievements:</h5>
-                      <ul className="space-y-2">{experience.achievements.map((ach, i) => (<li key={i} className="text-gray-300 flex items-start text-sm"><Star size={16} className="text-yellow-400 mr-2 mt-0.5 flex-shrink-0" />{ach}</li>))}</ul>
+                      <ul className="space-y-2">
+                        {experience.achievements.map((ach, i) => (
+                          <li
+                            key={i}
+                            className={`text-gray-300 flex items-start text-sm transition-all duration-500 ${isVisible.experience ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}
+                            style={{ transitionDelay: `${i * 60}ms` }}
+                          >
+                            <Star size={16} className="text-yellow-400 mr-2 mt-0.5 flex-shrink-0" />{ach}
+                          </li>
+                        ))}
+                      </ul>
                     </div>
                   </div>
                 </div>
-                <div className="bg-white/5 p-8 rounded-xl backdrop-blur-sm border border-white/10 hover:border-purple-400/50 transition-all tilt glow-border">
+                <div className="bg-white/5 p-8 rounded-xl backdrop-blur-sm border border-white/10 hover:border-purple-400/50 transition-all tilt glow-border spotlight" style={{ '--mx': `${mousePos.x}px`, '--my': `${mousePos.y}px` }}>
                   <h3 className="text-2xl font-bold text-purple-400 mb-6 flex items-center"><Award className="mr-3" size={24} /> Certifications & Achievements</h3>
                   <div className="space-y-4">
                     {[{ name: 'President, Media Team, Literary Fest', issuer: 'AITD Kanpur', year: '2024', icon: '🏆' }, { name: 'Member, Entrepreneurship Cell (E-Cell)', issuer: 'AITD Kanpur', year: '2023', icon: '💡' }, { name: 'Course on Computer Concepts (CCC)', issuer: 'NIELIT', year: '2023', icon: '📜' }].map((cert, i) => (
@@ -836,14 +900,14 @@ export default function App() {
                 <div className="grid md:grid-cols-2 gap-8">
                   <div className="space-y-6">
                     <h3 className="text-2xl font-semibold text-white mb-6">Get In Touch</h3>
-                    <a href={`mailto:${user.email}`} className="bg-white/5 p-6 rounded-xl backdrop-blur-sm border border-white/10 hover:border-blue-400/50 transition-all group block tilt glow-border">
+                    <a href={`mailto:${user.email}`} className="bg-white/5 p-6 rounded-xl backdrop-blur-sm border border-white/10 hover:border-blue-400/50 transition-all group block tilt glow-border spotlight" style={{ '--mx': `${mousePos.x}px`, '--my': `${mousePos.y}px` }}>
                       <div className="flex items-center space-x-4"><Mail className="text-blue-400 group-hover:scale-110 transition-transform" size={32} /><div><h3 className="text-white font-semibold">Email</h3><p className="text-gray-300">{user.email}</p></div></div>
                     </a>
-                    <a href={`tel:${user.phone}`} className="bg-white/5 p-6 rounded-xl backdrop-blur-sm border border-white/10 hover:border-purple-400/50 transition-all group block tilt glow-border">
+                    <a href={`tel:${user.phone}`} className="bg-white/5 p-6 rounded-xl backdrop-blur-sm border border-white/10 hover:border-purple-400/50 transition-all group block tilt glow-border spotlight" style={{ '--mx': `${mousePos.x}px`, '--my': `${mousePos.y}px` }}>
                       <div className="flex items-center space-x-4"><Phone className="text-purple-400 group-hover:scale-110 transition-transform" size={32} /><div><h3 className="text-white font-semibold">Phone</h3><p className="text-gray-300">{user.phone}</p></div></div>
                     </a>
                   </div>
-                  <div className="bg-white/5 p-8 rounded-xl backdrop-blur-sm border border-white/10 tilt glow-border">
+                  <div className="bg-white/5 p-8 rounded-xl backdrop-blur-sm border border-white/10 tilt glow-border spotlight" style={{ '--mx': `${mousePos.x}px`, '--my': `${mousePos.y}px` }}>
                     <h3 className="text-2xl font-semibold text-white mb-6">Send a Message</h3>
                     <form onSubmit={handleFormSubmit} className="space-y-4">
                       <div><input type="text" name="name" placeholder="Your Name" value={formData.name} onChange={handleFormChange} required className="w-full p-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-400 transition-colors" /></div>

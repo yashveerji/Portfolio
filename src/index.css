@@ -98,6 +98,19 @@ html, body, #root {
   transition: left 800ms ease, opacity 200ms ease;
 }
 
+/* Radial spotlight hover effect */
+.spotlight { position: relative; overflow: hidden; }
+.spotlight::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(240px circle at var(--mx, -100px) var(--my, -100px), rgba(255,255,255,0.08), transparent 60%);
+  opacity: 0;
+  transition: opacity .2s ease;
+}
+.spotlight:hover::after { opacity: 1; }
+
 /* Respect Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
   .animate-grad { animation: none; }
