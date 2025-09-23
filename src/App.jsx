@@ -350,6 +350,7 @@ export default function App() {
   const [currentTitle, setCurrentTitle] = useState(0);
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [showEmailPopup, setShowEmailPopup] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -370,7 +371,13 @@ export default function App() {
       { threshold: 0.3 }
     );
     document.querySelectorAll('section[id]').forEach((section) => observer.observe(section));
-    const onScroll = () => setShowScrollTop(window.pageYOffset > 300);
+    const onScroll = () => {
+      setShowScrollTop(window.pageYOffset > 300);
+      const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+      const total = scrollHeight - clientHeight;
+      const p = total > 0 ? (scrollTop / total) * 100 : 0;
+      setScrollProgress(p);
+    };
     window.addEventListener('scroll', onScroll);
     return () => {
       observer.disconnect();
@@ -572,6 +579,14 @@ export default function App() {
         </div>
       </nav>
 
+      {/* Scroll Progress Bar */}
+  <div className="fixed top-0 left-0 w-full h-1 z-[60]">
+        <div
+          className="h-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 animate-grad"
+          style={{ width: `${scrollProgress}%` }}
+        />
+      </div>
+
       <div className="pt-20">
         {/* Hero */}
         <section id="home" className="min-h-screen flex items-center justify-center relative overflow-hidden">
@@ -583,7 +598,7 @@ export default function App() {
           <div className="container mx-auto px-6 text-center z-10">
             <div className={`transition-all duration-1000 ${isVisible.home ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
               <div className="mb-8">
-                <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold mb-4 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold mb-4 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent animate-grad">
                   {user.name}
                 </h1>
                 <div className="relative h-10 flex justify-center items-center mb-6">
@@ -620,13 +635,13 @@ export default function App() {
                 </a>
               </div>
               <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-                <button onClick={() => scrollToSection('projects')} className="px-8 py-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full font-semibold hover:from-blue-600 hover:to-purple-600 transition-all hover:scale-105 shadow-lg hover:shadow-blue-500/25">
+                <button onClick={() => scrollToSection('projects')} className="px-8 py-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full font-semibold hover:from-blue-600 hover:to-purple-600 transition-all hover:scale-105 shadow-lg hover:shadow-blue-500/25 btn-shine">
                   View My Work
                 </button>
-                <button onClick={() => scrollToSection('contact')} className="px-8 py-3 border-2 border-blue-400 rounded-full font-semibold hover:bg-blue-400 hover:text-black transition-all hover:scale-105">
+                <button onClick={() => scrollToSection('contact')} className="px-8 py-3 border-2 border-blue-400 rounded-full font-semibold hover:bg-blue-400 hover:text-black transition-all hover:scale-105 btn-shine">
                   Get In Touch
                 </button>
-                <button onClick={downloadCV} className="px-8 py-3 bg-gradient-to-r from-green-500 to-teal-500 rounded-full font-semibold hover:from-green-600 hover:to-teal-600 transition-all hover:scale-105 shadow-lg hover:shadow-green-500/25 flex items-center space-x-2">
+                <button onClick={downloadCV} className="px-8 py-3 bg-gradient-to-r from-green-500 to-teal-500 rounded-full font-semibold hover:from-green-600 hover:to-teal-600 transition-all hover:scale-105 shadow-lg hover:shadow-green-500/25 flex items-center space-x-2 btn-shine">
                   <Download size={20} />
                   <span>Download CV</span>
                 </button>
@@ -644,7 +659,7 @@ export default function App() {
         <section id="about" className="py-20 bg-black/20">
           <div className="container mx-auto px-6">
             <div className={`transition-all duration-1000 ${isVisible.about ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-              <h2 className="text-4xl md:text-5xl font-bold text-center mb-16 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">About Me</h2>
+              <h2 className="text-4xl md:text-5xl font-bold text-center mb-16 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent animate-grad">About Me</h2>
               <div className="grid lg:grid-cols-2 gap-12 items-center">
                 <div>
                   <p className="text-gray-300 text-lg leading-relaxed">
@@ -670,7 +685,7 @@ export default function App() {
                 <GitHubStats />
               </div>
               <div className="space-y-8 mt-16">
-                <div className="bg-white/5 p-6 rounded-xl backdrop-blur-sm border border-white/10 hover:border-blue-400/50 transition-all">
+                <div className="bg-white/5 p-6 rounded-xl backdrop-blur-sm border border-white/10 hover:border-blue-400/50 transition-all tilt glow-border">
                   <h3 className="text-2xl font-semibold text-blue-400 mb-6 flex items-center"><BookOpen className="mr-3" size={24} /> Education</h3>
                   <div className="space-y-6">
                     <div className="border-l-4 border-blue-400 pl-6">
@@ -694,10 +709,10 @@ export default function App() {
         <section id="skills" className="py-20">
           <div className="container mx-auto px-6">
             <div className={`transition-all duration-1000 ${isVisible.skills ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-              <h2 className="text-4xl md:text-5xl font-bold text-center mb-16 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Skills & Technologies</h2>
+              <h2 className="text-4xl md:text-5xl font-bold text-center mb-16 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent animate-grad">Skills & Technologies</h2>
               <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
                 {Object.entries(skills).map(([category, list]) => (
-                  <div key={category} className="bg-white/5 p-6 rounded-xl backdrop-blur-sm border border-white/10 hover:border-blue-400/50 transition-all group">
+                  <div key={category} className="bg-white/5 p-6 rounded-xl backdrop-blur-sm border border-white/10 hover:border-blue-400/50 transition-all group tilt glow-border">
                     <Code className="text-blue-400 mb-4 group-hover:scale-110 transition-transform" size={40} />
                     <h3 className="text-xl font-semibold mb-6 text-white capitalize">{category}</h3>
                     <div className="space-y-4">
@@ -724,10 +739,10 @@ export default function App() {
         <section id="projects" className="py-20 bg-black/20">
           <div className="container mx-auto px-6">
             <div className={`transition-all duration-1000 ${isVisible.projects ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-              <h2 className="text-4xl md:text-5xl font-bold text-center mb-16 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Featured Projects</h2>
+              <h2 className="text-4xl md:text-5xl font-bold text-center mb-16 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent animate-grad">Featured Projects</h2>
               <div className="space-y-8">
                 {mainProjects.map((project, index) => (
-                  <div key={index} className="bg-white/5 p-8 rounded-xl backdrop-blur-sm border border-white/10 hover:border-blue-400/50 transition-all group">
+                  <div key={index} className="bg-white/5 p-8 rounded-xl backdrop-blur-sm border border-white/10 hover:border-blue-400/50 transition-all group tilt glow-border">
                     <div className="flex flex-col lg:flex-row justify-between items-start mb-6">
                       <div className="flex-1">
                         <h3 className="text-2xl font-bold text-white mb-2">{project.title}</h3>
@@ -771,9 +786,9 @@ export default function App() {
         <section id="experience" className="py-20">
           <div className="container mx-auto px-6">
             <div className={`transition-all duration-1000 ${isVisible.experience ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-              <h2 className="text-4xl md:text-5xl font-bold text-center mb-16 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Experience & Achievements</h2>
+              <h2 className="text-4xl md:text-5xl font-bold text-center mb-16 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent animate-grad">Experience & Achievements</h2>
               <div className="grid lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
-                <div className="bg-white/5 p-8 rounded-xl backdrop-blur-sm border border-white/10 hover:border-blue-400/50 transition-all">
+                <div className="bg-white/5 p-8 rounded-xl backdrop-blur-sm border border-white/10 hover:border-blue-400/50 transition-all tilt glow-border">
                   <h3 className="text-2xl font-bold text-blue-400 mb-6 flex items-center"><Briefcase className="mr-3" size={24} /> Work Experience</h3>
                   <div className="border-l-4 border-blue-400 pl-6">
                     <h4 className="text-xl font-semibold text-white">{experience.role}</h4>
@@ -789,7 +804,7 @@ export default function App() {
                     </div>
                   </div>
                 </div>
-                <div className="bg-white/5 p-8 rounded-xl backdrop-blur-sm border border-white/10 hover:border-purple-400/50 transition-all">
+                <div className="bg-white/5 p-8 rounded-xl backdrop-blur-sm border border-white/10 hover:border-purple-400/50 transition-all tilt glow-border">
                   <h3 className="text-2xl font-bold text-purple-400 mb-6 flex items-center"><Award className="mr-3" size={24} /> Certifications & Achievements</h3>
                   <div className="space-y-4">
                     {[{ name: 'President, Media Team, Literary Fest', issuer: 'AITD Kanpur', year: '2024', icon: '🏆' }, { name: 'Member, Entrepreneurship Cell (E-Cell)', issuer: 'AITD Kanpur', year: '2023', icon: '💡' }, { name: 'Course on Computer Concepts (CCC)', issuer: 'NIELIT', year: '2023', icon: '📜' }].map((cert, i) => (
@@ -815,26 +830,26 @@ export default function App() {
         <section id="contact" className="py-20 bg-black/20">
           <div className="container mx-auto px-6">
             <div className={`transition-all duration-1000 ${isVisible.contact ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-              <h2 className="text-4xl md:text-5xl font-bold text-center mb-16 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Let's Connect</h2>
+              <h2 className="text-4xl md:text-5xl font-bold text-center mb-16 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent animate-grad">Let's Connect</h2>
               <div className="max-w-4xl mx-auto">
                 <p className="text-gray-300 text-lg mb-12 text-center leading-relaxed">I'm always open to discussing new opportunities or collaborating on interesting projects. Feel free to reach out!</p>
                 <div className="grid md:grid-cols-2 gap-8">
                   <div className="space-y-6">
                     <h3 className="text-2xl font-semibold text-white mb-6">Get In Touch</h3>
-                    <a href={`mailto:${user.email}`} className="bg-white/5 p-6 rounded-xl backdrop-blur-sm border border-white/10 hover:border-blue-400/50 transition-all group block">
+                    <a href={`mailto:${user.email}`} className="bg-white/5 p-6 rounded-xl backdrop-blur-sm border border-white/10 hover:border-blue-400/50 transition-all group block tilt glow-border">
                       <div className="flex items-center space-x-4"><Mail className="text-blue-400 group-hover:scale-110 transition-transform" size={32} /><div><h3 className="text-white font-semibold">Email</h3><p className="text-gray-300">{user.email}</p></div></div>
                     </a>
-                    <a href={`tel:${user.phone}`} className="bg-white/5 p-6 rounded-xl backdrop-blur-sm border border-white/10 hover:border-purple-400/50 transition-all group block">
+                    <a href={`tel:${user.phone}`} className="bg-white/5 p-6 rounded-xl backdrop-blur-sm border border-white/10 hover:border-purple-400/50 transition-all group block tilt glow-border">
                       <div className="flex items-center space-x-4"><Phone className="text-purple-400 group-hover:scale-110 transition-transform" size={32} /><div><h3 className="text-white font-semibold">Phone</h3><p className="text-gray-300">{user.phone}</p></div></div>
                     </a>
                   </div>
-                  <div className="bg-white/5 p-8 rounded-xl backdrop-blur-sm border border-white/10">
+                  <div className="bg-white/5 p-8 rounded-xl backdrop-blur-sm border border-white/10 tilt glow-border">
                     <h3 className="text-2xl font-semibold text-white mb-6">Send a Message</h3>
                     <form onSubmit={handleFormSubmit} className="space-y-4">
                       <div><input type="text" name="name" placeholder="Your Name" value={formData.name} onChange={handleFormChange} required className="w-full p-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-400 transition-colors" /></div>
                       <div><input type="email" name="email" placeholder="Your Email" value={formData.email} onChange={handleFormChange} required className="w-full p-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-400 transition-colors" /></div>
                       <div><textarea name="message" placeholder="Your Message" value={formData.message} onChange={handleFormChange} required rows="5" className="w-full p-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-400 transition-colors resize-none"></textarea></div>
-                      <button type="submit" className="w-full p-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg text-white font-semibold hover:from-blue-600 hover:to-purple-600 transition-all hover:scale-105 flex items-center justify-center space-x-2 shadow-lg hover:shadow-blue-500/25">
+                      <button type="submit" className="w-full p-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg text-white font-semibold hover:from-blue-600 hover:to-purple-600 transition-all hover:scale-105 flex items-center justify-center space-x-2 shadow-lg hover:shadow-blue-500/25 btn-shine">
                         <Send size={20} /><span>Send Message</span>
                       </button>
                     </form>

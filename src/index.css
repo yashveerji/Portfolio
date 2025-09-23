@@ -44,3 +44,63 @@ html, body, #root {
 .reveal.is-visible {
   @apply opacity-100 translate-y-0;
 }
+
+/*********************
+  Enhanced UI Utilities
+*********************/
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Animate background gradients without overriding the gradient definition */
+.animate-grad {
+  background-size: 200% 200%;
+  animation: gradient-shift 6s ease infinite;
+}
+
+/* Tilt card effect */
+.tilt {
+  transition: transform 300ms ease, box-shadow 300ms ease, border-color 300ms ease;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+.tilt:hover {
+  transform: perspective(1000px) rotateX(3deg) rotateY(-6deg) translateY(-4px);
+  box-shadow: 0 12px 40px rgba(59, 130, 246, 0.15), 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+/* Subtle glowing border */
+.glow-border {
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08), 0 0 0 1px rgba(255,255,255,0.06), 0 0 24px rgba(59,130,246,0.15);
+  border-color: rgba(255,255,255,0.10) !important;
+}
+
+/* Button shine sweep */
+.btn-shine {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.btn-shine::before {
+  content: "";
+  position: absolute;
+  inset: -150% auto -150% -120%;
+  width: 40%;
+  transform: rotate(25deg);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  opacity: 0;
+}
+.btn-shine:hover::before {
+  opacity: 1;
+  left: 140%;
+  transition: left 800ms ease, opacity 200ms ease;
+}
+
+/* Respect Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .animate-grad { animation: none; }
+  .tilt, .tilt:hover { transform: none !important; }
+  .btn-shine::before, .btn-shine:hover::before { transition: none; }
+}
