@@ -20,6 +20,7 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
 } from 'react';
@@ -51,6 +52,7 @@ import {
   Target,
   Briefcase,
   CheckCircle,
+  Lock,
 } from 'lucide-react';
 import profilePhoto from '../Yash image.png';
 
@@ -69,14 +71,14 @@ function ThemeProvider({ children }) {
   });
 
   // Apply the theme to the <html> element (Tailwind dark mode requires this)
-  useEffect(() => {
+  useLayoutEffect(() => {
     const root = document.documentElement;
     if (theme === 'dark') {
       root.classList.add('dark');
     } else {
       root.classList.remove('dark');
     }
-    localStorage.setItem('theme', theme);
+    try { localStorage.setItem('theme', theme); } catch {}
   }, [theme]);
 
   const toggleTheme = useCallback(() => {
@@ -92,7 +94,7 @@ function ThemeProvider({ children }) {
           --text: #0f172a; /* slate-900 */
           --muted: #334155; /* slate-600 */
           --card: #ffffff;
-          --accent: #2563eb; /* blue-600 */
+          --accent: var(--accent, #2563eb); /* controlled by JS */
           --border: rgba(15, 23, 42, 0.08);
         }
         html.dark {
@@ -100,7 +102,7 @@ function ThemeProvider({ children }) {
           --text: #e2e8f0; /* slate-200 */
           --muted: #94a3b8; /* slate-400 */
           --card: #0f172a; /* slate-900 */
-          --accent: #60a5fa; /* blue-400 */
+          --accent: var(--accent, #60a5fa); /* controlled by JS */
           --border: rgba(255, 255, 255, 0.08);
         }
         body, #root { background: var(--bg); color: var(--text); }
@@ -360,6 +362,10 @@ export default function App() {
 
   useEffect(() => {
     try { localStorage.setItem('accent', accent); } catch {}
+    // Publish as CSS variable so non-Tailwind styles (and custom CSS) can use it
+    const root = document.documentElement;
+    const map = { blue: '#60a5fa', purple: '#a78bfa', teal: '#14b8a6', pink: '#fb7185' };
+    root.style.setProperty('--accent', map[accent] || '#60a5fa');
   }, [accent]);
 
   useEffect(() => {
@@ -504,21 +510,21 @@ export default function App() {
       ],
     },
     {
-      title: 'Bus Reservation System',
-      subtitle: 'Desktop Management Application',
+      title: 'Yashveerji Care Medical Institute',
+      subtitle: 'Hospital Management System',
       description:
-        'A robust desktop application built with Java Swing for managing bus reservations. The system automates ticket booking, cancellation, and passenger management, significantly improving efficiency and reducing manual errors through strong Object-Oriented design.',
-      tech: ['Java', 'Swing (GUI)', 'OOP'],
-      github: '#',
-      demo: '#',
-      period: 'Academic Project',
+        'Developed a full-stack hospital management system with separate patient and admin portals. Public and admin dashboards are deployed live; source code is available on GitHub.',
+      tech: ['React', 'Node.js', 'Express', 'MongoDB', 'Vite', 'JWT', 'Cloudinary'],
+      github: 'https://github.com/yashveerji/Hospital_Managemen_System',
+      demo: 'https://ys-yashveerji-care-medical-institute.onrender.com',
+      admin: 'https://ys-yashveerji-care-medical-institute-enq8.onrender.com',
+      period: 'Personal Project',
       status: 'Completed',
-      features: ['Automated Booking', 'Ticket Management', 'Passenger Database', 'Intuitive GUI'],
+      features: ['Developed patient and admin portals', 'Built secure Node.js/Express API with JWT authentication for role-based access', 'Integrated Cloudinary for media uploads (doctor avatars, reports)'],
       highlights: [
-        'Reduced manual booking errors by 80%',
-        'Applied core OOP principles for a maintainable codebase',
-        'Streamlined the reservation process for better user experience',
-        'Managed application state effectively within a desktop environment',
+        'MERN Stack (React, Node.js, Express, MongoDB) with Vite frontend',
+        'Role-based JWT authentication and secure APIs',
+        'Cloudinary integration for efficient media management',
       ],
     },
   ];
@@ -572,9 +578,16 @@ export default function App() {
             <div className="flex items-center gap-2">
               <ThemeToggle />
               {/* Accent color switcher */}
-              <div className="hidden sm:flex items-center gap-1 pl-2">
+              <div className="hidden sm:flex items-center gap-1 pl-2" role="tablist" aria-label="Accent color chooser">
                 {[['blue','from-blue-500 to-purple-500'], ['purple','from-purple-500 to-pink-500'], ['teal','from-teal-500 to-emerald-500'], ['pink','from-pink-500 to-rose-500']].map(([key, grad]) => (
-                  <button key={key} onClick={() => setAccent(key)} aria-label={`Set ${key} accent`} className={`h-5 w-5 rounded-full bg-gradient-to-r ${grad} border border-white/20 ${accent===key? 'ring-2 ring-white/60':'opacity-80 hover:opacity-100'}`}></button>
+                  <button
+                    key={key}
+                    onClick={() => setAccent(key)}
+                    aria-label={`Set ${key} accent`}
+                    aria-pressed={accent===key}
+                    title={`Set ${key} accent`}
+                    className={`h-5 w-5 rounded-full bg-gradient-to-r ${grad} border border-white/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white/40 ${accent===key? 'ring-2 ring-white/60':'opacity-80 hover:opacity-100'}`}
+                  />
                 ))}
               </div>
               <button
@@ -781,8 +794,22 @@ export default function App() {
                         </div>
                       </div>
                       <div className="flex space-x-3 mt-4 lg:mt-0">
-                        {project.github && project.github !== '#' && <a href={project.github} target="_blank" rel="noopener noreferrer" className="p-3 bg-white/10 rounded-full hover:bg-white/20 transition-all group-hover:scale-110" aria-label="GitHub"><Github size={20} /></a>}
-                        {project.demo && project.demo !== '#' && <a href={project.demo} target="_blank" rel="noopener noreferrer" className="p-3 bg-white/10 rounded-full hover:bg-white/20 transition-all group-hover:scale-110" aria-label="Live Demo"><ExternalLink size={20} /></a>}
+                        {project.github && project.github !== '#' && (
+                          <a href={project.github} target="_blank" rel="noopener noreferrer" className="p-3 bg-white/10 rounded-full hover:bg-white/20 transition-all group-hover:scale-110" aria-label="GitHub">
+                            <Github size={20} />
+                          </a>
+                        )}
+                        {project.demo && project.demo !== '#' && (
+                          <a href={project.demo} target="_blank" rel="noopener noreferrer" className="p-3 bg-white/10 rounded-full hover:bg-white/20 transition-all group-hover:scale-110" aria-label="Live Demo">
+                            <ExternalLink size={20} />
+                          </a>
+                        )}
+                        {project.admin && project.admin !== '#' && (
+                          <a href={project.admin} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 px-3 py-2" style={{ background: 'rgba(255,255,255,0.06)', borderRadius: 999 }} aria-label="Live (Admin)" title="Admin Dashboard (Live)">
+                            <Lock size={18} style={{ color: '#f6c756' }} />
+                            <span className="hidden sm:inline text-sm text-gray-200">Admin</span>
+                          </a>
+                        )}
                       </div>
                     </div>
                     <p className="text-gray-300 mb-6 text-lg leading-relaxed">{project.description}</p>
