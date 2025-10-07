@@ -56,6 +56,43 @@ import {
 } from 'lucide-react';
 import profilePhoto from '../Yash image.png';
 
+const ACCENT_PALETTE = {
+  blue: {
+    base: '#60a5fa',
+    start: '#3b82f6',
+    mid: '#8b5cf6',
+    end: '#ec4899',
+    soft: 'rgba(59,130,246,0.18)',
+    ring: 'rgba(96,165,250,0.45)',
+  },
+  purple: {
+    base: '#c084fc',
+    start: '#8b5cf6',
+    mid: '#d946ef',
+    end: '#f97316',
+    soft: 'rgba(168,85,247,0.20)',
+    ring: 'rgba(192,132,252,0.45)',
+  },
+  teal: {
+    base: '#14b8a6',
+    start: '#0ea5e9',
+    mid: '#22c55e',
+    end: '#84cc16',
+    soft: 'rgba(20,184,166,0.20)',
+    ring: 'rgba(45,212,191,0.45)',
+  },
+  pink: {
+    base: '#fb7185',
+    start: '#f97316',
+    mid: '#ec4899',
+    end: '#6366f1',
+    soft: 'rgba(251,113,133,0.20)',
+    ring: 'rgba(244,114,182,0.45)',
+  },
+};
+
+const ACCENT_KEYS = ['blue', 'purple', 'teal', 'pink'];
+
 /************************************
  * Theme Context & Provider
  ************************************/
@@ -94,7 +131,12 @@ function ThemeProvider({ children }) {
           --text: #0f172a; /* slate-900 */
           --muted: #334155; /* slate-600 */
           --card: #ffffff;
-          --accent: var(--accent, #2563eb); /* controlled by JS */
+          --accent: #2563eb; /* default, overridden by JS */
+          --accent-start: #3b82f6;
+          --accent-mid: #8b5cf6;
+          --accent-end: #ec4899;
+          --accent-soft: rgba(59,130,246,0.18);
+          --accent-ring: rgba(96,165,250,0.45);
           --border: rgba(15, 23, 42, 0.08);
         }
         html.dark {
@@ -102,7 +144,12 @@ function ThemeProvider({ children }) {
           --text: #e2e8f0; /* slate-200 */
           --muted: #94a3b8; /* slate-400 */
           --card: #0f172a; /* slate-900 */
-          --accent: var(--accent, #60a5fa); /* controlled by JS */
+          --accent: #60a5fa;
+          --accent-start: #60a5fa;
+          --accent-mid: #a78bfa;
+          --accent-end: #f472b6;
+          --accent-soft: rgba(96,165,250,0.22);
+          --accent-ring: rgba(96,165,250,0.45);
           --border: rgba(255, 255, 255, 0.08);
         }
         body, #root { background: var(--bg); color: var(--text); }
@@ -362,10 +409,14 @@ export default function App() {
 
   useEffect(() => {
     try { localStorage.setItem('accent', accent); } catch {}
-    // Publish as CSS variable so non-Tailwind styles (and custom CSS) can use it
+    const palette = ACCENT_PALETTE[accent] || ACCENT_PALETTE.blue;
     const root = document.documentElement;
-    const map = { blue: '#60a5fa', purple: '#a78bfa', teal: '#14b8a6', pink: '#fb7185' };
-    root.style.setProperty('--accent', map[accent] || '#60a5fa');
+    root.style.setProperty('--accent', palette.base);
+    root.style.setProperty('--accent-start', palette.start);
+    root.style.setProperty('--accent-mid', palette.mid);
+    root.style.setProperty('--accent-end', palette.end);
+    root.style.setProperty('--accent-soft', palette.soft);
+    root.style.setProperty('--accent-ring', palette.ring);
   }, [accent]);
 
   useEffect(() => {
@@ -556,7 +607,7 @@ export default function App() {
       <nav className="fixed top-0 w-full z-50 bg-black/20 backdrop-blur-lg border-b border-white/10">
         <div className="container mx-auto px-4 sm:px-6 py-4">
           <div className="flex justify-between items-center">
-            <div className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+            <div className="text-xl sm:text-2xl font-bold accent-gradient-text">
               {user.name}
             </div>
             <div className="hidden md:flex space-x-6 lg:space-x-8">
@@ -564,31 +615,30 @@ export default function App() {
                 <button
                   key={item}
                   onClick={() => scrollToSection(item)}
-                  className={`capitalize hover:text-blue-400 transition-colors relative ${
-                    activeSection === item ? 'text-blue-400' : 'text-gray-300'
-                  }`}
+                  className={`nav-link capitalize ${activeSection === item ? 'is-active' : ''}`}
                 >
                   {item}
-                  {activeSection === item && (
-                    <span className="absolute -bottom-2 left-0 right-0 h-0.5 bg-blue-400 rounded-full"></span>
-                  )}
                 </button>
               ))}
             </div>
             <div className="flex items-center gap-2">
               <ThemeToggle />
               {/* Accent color switcher */}
-              <div className="hidden sm:flex items-center gap-1 pl-2" role="tablist" aria-label="Accent color chooser">
-                {[['blue','from-blue-500 to-purple-500'], ['purple','from-purple-500 to-pink-500'], ['teal','from-teal-500 to-emerald-500'], ['pink','from-pink-500 to-rose-500']].map(([key, grad]) => (
-                  <button
-                    key={key}
-                    onClick={() => setAccent(key)}
-                    aria-label={`Set ${key} accent`}
-                    aria-pressed={accent===key}
-                    title={`Set ${key} accent`}
-                    className={`h-5 w-5 rounded-full bg-gradient-to-r ${grad} border border-white/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white/40 ${accent===key? 'ring-2 ring-white/60':'opacity-80 hover:opacity-100'}`}
-                  />
-                ))}
+              <div className="hidden sm:flex items-center gap-2 pl-2" role="tablist" aria-label="Accent color chooser">
+                {ACCENT_KEYS.map((key) => {
+                  const palette = ACCENT_PALETTE[key];
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => setAccent(key)}
+                      aria-label={`Set ${key} accent`}
+                      aria-pressed={accent === key}
+                      title={`Set ${key} accent`}
+                      className={`accent-dot ${accent === key ? 'is-active' : ''}`}
+                      style={{ backgroundImage: `linear-gradient(135deg, ${palette.start}, ${palette.end})` }}
+                    />
+                  );
+                })}
               </div>
               <button
                 className="md:hidden p-2 hover:bg-white/10 rounded-lg transition-colors"
@@ -618,7 +668,7 @@ export default function App() {
       {/* Scroll Progress Bar */}
   <div className="fixed top-0 left-0 w-full h-1 z-[60]">
         <div
-          className="h-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 animate-grad"
+          className="h-full accent-gradient animate-grad"
           style={{ width: `${scrollProgress}%` }}
         />
       </div>
@@ -635,7 +685,7 @@ export default function App() {
           <div className="container mx-auto px-6 text-center z-10">
             <div className={`transition-all duration-1000 ${isVisible.home ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
               <div className="mb-8">
-                <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold mb-4 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent animate-grad">
+                <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold mb-4 accent-gradient-text-hero animate-grad">
                   {user.name}
                 </h1>
                 <div className="relative h-10 flex justify-center items-center mb-6">
@@ -652,9 +702,9 @@ export default function App() {
                   ))}
                 </div>
                 <div className="flex justify-center items-center space-x-4">
-                  <span className="h-px bg-gradient-to-r from-transparent via-blue-400 to-transparent flex-1 max-w-xs"></span>
+                  <span className="h-px flex-1 max-w-xs" style={{ backgroundImage: 'linear-gradient(90deg, transparent, var(--accent), transparent)' }}></span>
                   <p className="text-xl md:text-2xl lg:text-3xl text-gray-300 px-4">Front-End Engineer & Creative Web</p>
-                  <span className="h-px bg-gradient-to-r from-transparent via-purple-400 to-transparent flex-1 max-w-xs"></span>
+                  <span className="h-px flex-1 max-w-xs" style={{ backgroundImage: 'linear-gradient(90deg, transparent, var(--accent-mid), transparent)' }}></span>
                 </div>
               </div>
               <p className="text-lg text-gray-400 max-w-3xl mx-auto mb-12 leading-relaxed">
@@ -672,13 +722,13 @@ export default function App() {
                 </a>
               </div>
               <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-                <button onClick={() => scrollToSection('projects')} className={`px-8 py-3 bg-gradient-to-r rounded-full font-semibold transition-all hover:scale-105 shadow-lg btn-shine ${accent==='blue'?'from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600':accent==='purple'?'from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600':accent==='teal'?'from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600':'from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600'}`}>
+                <button onClick={() => scrollToSection('projects')} className="accent-btn-primary btn-shine">
                   View My Work
                 </button>
-                <button onClick={() => scrollToSection('contact')} className={`px-8 py-3 border-2 rounded-full font-semibold transition-all hover:scale-105 btn-shine ${accent==='blue'?'border-blue-400 hover:bg-blue-400':'border-purple-400 hover:bg-purple-400'} hover:text-black`}>
+                <button onClick={() => scrollToSection('contact')} className="accent-btn-outline btn-shine">
                   Get In Touch
                 </button>
-                <button onClick={downloadCV} className={`px-8 py-3 bg-gradient-to-r rounded-full font-semibold transition-all hover:scale-105 shadow-lg flex items-center space-x-2 btn-shine ${accent==='teal'?'from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600':'from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600'}`}>
+                <button onClick={downloadCV} className="accent-btn-ghost btn-shine">
                   <Download size={20} />
                   <span>Download CV</span>
                 </button>
@@ -696,7 +746,7 @@ export default function App() {
         <section id="about" className="py-20 bg-black/20">
           <div className="container mx-auto px-6">
             <div className={`transition-all duration-1000 ${isVisible.about ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-              <h2 className="text-4xl md:text-5xl font-bold text-center mb-16 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent animate-grad">About Me</h2>
+              <h2 className="text-4xl md:text-5xl font-bold text-center mb-16 accent-gradient-text animate-grad">About Me</h2>
               <div className="grid lg:grid-cols-2 gap-12 items-center">
                 <div>
                   <p className="text-gray-300 text-lg leading-relaxed">
@@ -746,7 +796,7 @@ export default function App() {
         <section id="skills" className="py-20">
           <div className="container mx-auto px-6">
             <div className={`transition-all duration-1000 ${isVisible.skills ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-              <h2 className="text-4xl md:text-5xl font-bold text-center mb-16 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent animate-grad">Skills & Technologies</h2>
+              <h2 className="text-4xl md:text-5xl font-bold text-center mb-16 accent-gradient-text animate-grad">Skills & Technologies</h2>
               <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
                 {Object.entries(skills).map(([category, list], idx) => (
                   <div key={category} className="bg-white/5 p-6 rounded-xl backdrop-blur-sm border border-white/10 hover:border-blue-400/50 transition-all group tilt glow-border spotlight" style={{ transitionDelay: `${idx * 80}ms`, '--mx': `${mousePos.x}px`, '--my': `${mousePos.y}px` }}>
@@ -780,7 +830,7 @@ export default function App() {
         <section id="projects" className="py-20 bg-black/20">
           <div className="container mx-auto px-6">
             <div className={`transition-all duration-1000 ${isVisible.projects ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-              <h2 className="text-4xl md:text-5xl font-bold text-center mb-16 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent animate-grad">Featured Projects</h2>
+              <h2 className="text-4xl md:text-5xl font-bold text-center mb-16 accent-gradient-text animate-grad">Featured Projects</h2>
               <div className="space-y-8">
                 {mainProjects.map((project, index) => (
                   <div key={index} className="bg-white/5 p-8 rounded-xl backdrop-blur-sm border border-white/10 hover:border-blue-400/50 transition-all group tilt glow-border spotlight" style={{ transitionDelay: `${index * 90}ms`, '--mx': `${mousePos.x}px`, '--my': `${mousePos.y}px` }}>
@@ -793,21 +843,44 @@ export default function App() {
                           <span className={`px-3 py-1 rounded-full text-xs ${project.status === 'Completed' ? 'bg-green-400/20 text-green-400' : 'bg-blue-400/20 text-blue-400'}`}>{project.status}</span>
                         </div>
                       </div>
-                      <div className="flex space-x-3 mt-4 lg:mt-0">
+                      <div className="flex flex-wrap gap-3 mt-4 lg:mt-0">
                         {project.github && project.github !== '#' && (
-                          <a href={project.github} target="_blank" rel="noopener noreferrer" className="p-3 bg-white/10 rounded-full hover:bg-white/20 transition-all group-hover:scale-110" aria-label="GitHub">
-                            <Github size={20} />
+                          <a
+                            href={project.github}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="project-action project-action--github"
+                            aria-label="GitHub Repository"
+                            title="View source on GitHub"
+                          >
+                            <Github />
+                            <span className="hidden sm:inline">GitHub</span>
                           </a>
                         )}
                         {project.demo && project.demo !== '#' && (
-                          <a href={project.demo} target="_blank" rel="noopener noreferrer" className="p-3 bg-white/10 rounded-full hover:bg-white/20 transition-all group-hover:scale-110" aria-label="Live Demo">
-                            <ExternalLink size={20} />
+                          <a
+                            href={project.demo}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="project-action project-action--accent"
+                            aria-label="Live Demo"
+                            title="Open live project"
+                          >
+                            <ExternalLink />
+                            <span className="hidden sm:inline">Live</span>
                           </a>
                         )}
                         {project.admin && project.admin !== '#' && (
-                          <a href={project.admin} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2 px-3 py-2" style={{ background: 'rgba(255,255,255,0.06)', borderRadius: 999 }} aria-label="Live (Admin)" title="Admin Dashboard (Live)">
-                            <Lock size={18} style={{ color: '#f6c756' }} />
-                            <span className="hidden sm:inline text-sm text-gray-200">Admin</span>
+                          <a
+                            href={project.admin}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="project-action project-action--admin"
+                            aria-label="Admin Dashboard"
+                            title="Open admin dashboard"
+                          >
+                            <Lock />
+                            <span className="hidden sm:inline">Admin</span>
                           </a>
                         )}
                       </div>
@@ -857,7 +930,7 @@ export default function App() {
         <section id="experience" className="py-20">
           <div className="container mx-auto px-6">
             <div className={`transition-all duration-1000 ${isVisible.experience ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-              <h2 className="text-4xl md:text-5xl font-bold text-center mb-16 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent animate-grad">Experience & Achievements</h2>
+              <h2 className="text-4xl md:text-5xl font-bold text-center mb-16 accent-gradient-text animate-grad">Experience & Achievements</h2>
               <div className="grid lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
                 <div className="bg-white/5 p-8 rounded-xl backdrop-blur-sm border border-white/10 hover:border-blue-400/50 transition-all tilt glow-border spotlight" style={{ '--mx': `${mousePos.x}px`, '--my': `${mousePos.y}px` }}>
                   <h3 className="text-2xl font-bold text-blue-400 mb-6 flex items-center"><Briefcase className="mr-3" size={24} /> Work Experience</h3>
@@ -921,7 +994,7 @@ export default function App() {
         <section id="contact" className="py-20 bg-black/20">
           <div className="container mx-auto px-6">
             <div className={`transition-all duration-1000 ${isVisible.contact ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-              <h2 className="text-4xl md:text-5xl font-bold text-center mb-16 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent animate-grad">Let's Connect</h2>
+              <h2 className="text-4xl md:text-5xl font-bold text-center mb-16 accent-gradient-text animate-grad">Let's Connect</h2>
               <div className="max-w-4xl mx-auto">
                 <p className="text-gray-300 text-lg mb-12 text-center leading-relaxed">I'm always open to discussing new opportunities or collaborating on interesting projects. Feel free to reach out!</p>
                 <div className="grid md:grid-cols-2 gap-8">

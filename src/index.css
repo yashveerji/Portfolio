@@ -5,6 +5,12 @@
 /* App-level base styles (can coexist with CSS variables in App.jsx) */
 :root {
   color-scheme: light dark;
+  --accent: #2563eb;
+  --accent-start: #3b82f6;
+  --accent-mid: #8b5cf6;
+  --accent-end: #ec4899;
+  --accent-soft: rgba(59,130,246,0.18);
+  --accent-ring: rgba(96,165,250,0.45);
 }
 
 html, body, #root {
@@ -48,6 +54,194 @@ html, body, #root {
 /*********************
   Enhanced UI Utilities
 *********************/
+ .accent-gradient {
+  background-image: linear-gradient(135deg, var(--accent-start), var(--accent-end));
+ }
+
+.accent-gradient-text,
+.accent-gradient-text-hero {
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.accent-gradient-text {
+  background-image: linear-gradient(135deg, var(--accent-start), var(--accent-end));
+}
+
+.accent-gradient-text-hero {
+  background-image: linear-gradient(135deg, var(--accent-start), var(--accent-mid), var(--accent-end));
+}
+
+.accent-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.75rem;
+  border-radius: 999px;
+  border: none;
+  color: white;
+  background-image: linear-gradient(135deg, var(--accent-start), var(--accent-end));
+  transition: transform 200ms ease, box-shadow 250ms ease, filter 200ms ease;
+}
+
+.accent-btn-primary:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.05);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25), 0 10px 30px var(--accent-soft);
+}
+
+.accent-btn-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.75rem;
+  border-radius: 999px;
+  border: 2px solid var(--accent);
+  color: white;
+  transition: transform 200ms ease, background-color 200ms ease, color 200ms ease, box-shadow 250ms ease;
+}
+
+.accent-btn-outline:hover {
+  transform: translateY(-2px);
+  background-color: var(--accent);
+  color: #0b1020;
+  box-shadow: 0 10px 36px rgba(0, 0, 0, 0.3), 0 10px 20px var(--accent-soft);
+}
+
+.accent-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.75rem;
+  border-radius: 999px;
+  background-color: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: white;
+  transition: transform 200ms ease, background-color 200ms ease, box-shadow 250ms ease;
+}
+
+.accent-btn-ghost:hover {
+  transform: translateY(-2px);
+  background-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+}
+
+.accent-btn-ghost svg {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+.accent-dot {
+  width: 1.1rem;
+  height: 1.1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  opacity: 0.8;
+  transition: transform 160ms ease, opacity 160ms ease, box-shadow 200ms ease;
+}
+
+.accent-dot:hover {
+  opacity: 1;
+  transform: translateY(-1px);
+}
+
+.accent-dot:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--accent-ring);
+}
+
+.accent-dot.is-active {
+  opacity: 1;
+  transform: translateY(-1px);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.6);
+}
+
+.nav-link {
+  position: relative;
+  color: rgba(203, 213, 225, 0.86);
+  transition: color 180ms ease;
+}
+
+.nav-link:hover {
+  color: var(--accent);
+}
+
+.nav-link.is-active {
+  color: var(--accent);
+}
+
+.nav-link.is-active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -0.5rem;
+  height: 3px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--accent-start), var(--accent-end));
+}
+
+.project-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.95rem;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  background: rgba(15, 23, 42, 0.35);
+  color: rgba(226, 232, 240, 0.92);
+  font-size: 0.85rem;
+  transition: transform 180ms ease, color 180ms ease, border-color 180ms ease, background 180ms ease, box-shadow 220ms ease;
+}
+
+.project-action svg {
+  width: 1.05rem;
+  height: 1.05rem;
+}
+
+.project-action:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(15, 23, 42, 0.5);
+}
+
+.project-action--accent {
+  background: linear-gradient(135deg, var(--accent-start), var(--accent-end));
+  border-color: transparent;
+  color: white;
+}
+
+.project-action--accent:hover {
+  color: white;
+  box-shadow: 0 12px 32px var(--accent-soft);
+}
+
+.project-action--admin {
+  border-color: rgba(250, 204, 21, 0.45);
+  background: rgba(250, 204, 21, 0.1);
+  color: #fde68a;
+}
+
+.project-action--admin:hover {
+  color: #facc15;
+  border-color: #facc15;
+  background: rgba(250, 204, 21, 0.18);
+}
+
+.project-action--github {
+  background: rgba(148, 163, 184, 0.12);
+}
+
+.project-action--github:hover {
+  color: #ffffff;
+  border-color: rgba(226, 232, 240, 0.6);
+  background: rgba(148, 163, 184, 0.2);
+}
 @keyframes gradient-shift {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
