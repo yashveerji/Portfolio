@@ -599,6 +599,36 @@ export default function App() {
     ],
   };
 
+  const certifications = [
+    {
+      name: 'Google Foundations of Cybersecurity',
+      issuer: 'Google',
+      icon: '🛡️',
+      link: 'https://drive.google.com/file/d/1CqhXv8GQ6iQ9w0YJD_r0YwSw3NkYv9zu/view?usp=sharing',
+    },
+    {
+      name: 'Certified in Course on Computer Concepts (CCC) – NIELIT',
+      issuer: 'NIELIT',
+      icon: '📜',
+      link: 'https://drive.google.com/file/d/1VKJn5AcK3UnTeWaH3cK4T7lc_zsZgLaV/view?usp=sharing',
+    },
+    {
+      name: 'MS Office Automation',
+      issuer: 'Local Institute',
+      icon: '💻',
+    },
+    {
+      name: 'President, Media Team, Literary Fest',
+      issuer: 'AITD Kanpur',
+      icon: '🎙️',
+    },
+    {
+      name: 'Member, Entrepreneurship Cell (E-Cell)',
+      issuer: 'AITD Kanpur',
+      icon: '🤝',
+    },
+  ];
+
   return (
     <ThemeProvider>
   {/* 3D background removed per request; add subtle parallax blobs */}
@@ -971,15 +1001,37 @@ export default function App() {
                 <div className="bg-white/5 p-8 rounded-xl backdrop-blur-sm border border-white/10 hover:border-purple-400/50 transition-all tilt glow-border spotlight" style={{ '--mx': `${mousePos.x}px`, '--my': `${mousePos.y}px` }}>
                   <h3 className="text-2xl font-bold text-purple-400 mb-6 flex items-center"><Award className="mr-3" size={24} /> Certifications & Achievements</h3>
                   <div className="space-y-4">
-                    {[{ name: 'President, Media Team, Literary Fest', issuer: 'AITD Kanpur', year: '2024', icon: '🏆' }, { name: 'Member, Entrepreneurship Cell (E-Cell)', issuer: 'AITD Kanpur', year: '2023', icon: '💡' }, { name: 'Course on Computer Concepts (CCC)', issuer: 'NIELIT', year: '2023', icon: '📜' }].map((cert, i) => (
-                      <div key={i} className="flex items-start space-x-4 p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-colors">
-                        <span className="text-2xl">{cert.icon}</span>
+                    {certifications.map((cert, i) => (
+                      <div
+                        key={i}
+                        className="flex items-start space-x-4 p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-colors"
+                      >
+                        <span className="text-2xl" aria-hidden="true">{cert.icon}</span>
                         <div className="flex-1">
-                          <h4 className="text-white font-medium">{cert.name}</h4>
-                          <div className="flex justify-between items-center">
-                            <p className="text-gray-400 text-sm">{cert.issuer}</p>
-                            <span className="text-xs text-purple-400 bg-purple-400/20 px-2 py-1 rounded">{cert.year}</span>
-                          </div>
+                          <h4 className="text-white font-medium">
+                            {cert.link ? (
+                              <a
+                                href={cert.link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="hover:text-blue-300 transition-colors"
+                              >
+                                {cert.name}
+                              </a>
+                            ) : (
+                              cert.name
+                            )}
+                          </h4>
+                          {(cert.issuer || cert.year) && (
+                            <div className="flex flex-wrap gap-2 text-gray-400 text-sm items-center">
+                              {cert.issuer && <p>{cert.issuer}</p>}
+                              {cert.year && (
+                                <span className="text-xs text-purple-400 bg-purple-400/20 px-2 py-1 rounded">
+                                  {cert.year}
+                                </span>
+                              )}
+                            </div>
+                          )}
                         </div>
                       </div>
                     ))}
